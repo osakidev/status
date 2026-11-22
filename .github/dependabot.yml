@@ -1,0 +1,12 @@
+# 固定した GitHub Actions の版を毎週確かめ、新しい版があれば SHA と版のコメントを上げる PR を作る
+# （company の docs/security/github.md の 4-4）。Rust の依存はないので cargo は見ない（tests/repo.rs が依存なしを確かめる）。
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns:
+          - "*"

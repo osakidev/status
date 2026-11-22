@@ -1,0 +1,19 @@
+[package]
+name = "status-tools"
+version = "0.1.0"
+edition = "2024"
+# let チェーン（if let … && …）を使う。GitHub Actions の Ubuntu の Rust がこれより古ければ、組み立ての前に分かる
+rust-version = "1.88"
+publish = false
+description = "OSAKI Dev の稼働状況のまとめのページを、サービスの一覧（services.md）から組み立てる道具と、その確かめ"
+
+# このリポジトリの道具。ほかのクレートのワークスペースには入れない。
+[workspace]
+
+# サービスの一覧（services.md）から、配信するファイル（docs/）を組み立てる（../build.sh）
+[[bin]]
+name = "render"
+path = "src/bin/render.rs"
+
+# 依存なし（標準ライブラリだけ。tests/repo.rs が確かめる）
+[dependencies]

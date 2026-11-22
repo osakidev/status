@@ -1,0 +1,74 @@
+# 確かめと配信（README の「4. 組み立てと配信」）。
+#
+# - main への push・手動の実行: 確かめ（test）が通ったら、サービスの一覧から組み立て直し、GitHub Pages に配信する
+#   （test → build → deploy）。急いで載せるもの（障害のお知らせ）はサービスごとのページにあり、ここにはないので、
+#   配信は確かめを待つ
+# - pull_request: test だけ。配信しない
+# - crates.io に頼らない（依存がないので --offline で組み立てる。シークレットもない）
+#
+# 外部のアクションは GitHub の公式のものだけ。版はコミットの SHA で固定する（タグの付け替えで中身が変わらないように）。
+# Rust は Ubuntu のイメージに入っているものを使う（ダウンロードと外部のアクションを増やさない。Cargo.toml の rust-version より古ければ止まる）。
+# 予備の道（Settings → Pages の Source を「Deploy from a branch」の main /docs にする）に切り替えたときは、
+# リポジトリの変数 STATUS_PAGES_SOURCE を branch にして、配信のジョブを止める（確かめは続く）。
+name: 確かめと配信
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# 既定は権限なし。要るものだけジョブごとに付ける
+permissions: {}
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Rust の版
+        run: rustc --version && cargo --version
+      - name: 確かめる（docs/ が一覧と合っているかも）
+        run: ./test.sh
+
+  build:
+    needs: test
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: サービスの一覧から組み立てる
+        run: ./build.sh --out _site
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    if: vars.STATUS_PAGES_SOURCE != 'branch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    # 配信のジョブだけが書き込める（公式のアクションの README の最小の権限）
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

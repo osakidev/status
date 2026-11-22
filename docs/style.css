@@ -1,0 +1,166 @@
+/* OSAKI Dev の稼働状況のまとめのページの見た目。
+ * 色・文字の定義は、大崎開発 デザインの基礎（osakidev/company docs/design/guidelines.md 版 1.1、2026-11-04）の 4.3 を写したもの。
+ * 強調の --accent は会社の色の浅葱（ガイドライン 4.1 と 14. の 1）。サービスの色は使わない。
+ * 使わない変数（--code-bg・--control・--error・--warn・--success・--accent-visited・--on-accent・--mono）は写していない（使うときに足す）。
+ * 色は下の 3 つの :root だけに書く。値を変えたら ./test.sh でライト・ダーク・印刷の比を計算し直す。
+ * 文字の大きさは rem。余白はガイドライン 6. の 7 段（.25 .5 .75 1 1.5 2 3rem）だけ。外部のファイルは読み込まない。
+ * 読み上げの順は HTML の順。order や逆向きの並びで順番を変えない。 */
+:root {
+  color-scheme: light dark;
+
+  /* 中立色（会社共通） */
+  --bg: #f7f6f2;        /* ページの背景 */
+  --panel: #ffffff;     /* 面 */
+  --fg: #1d1d1f;        /* 文字 */
+  --muted: #5a5a60;     /* 補足の文字 */
+  --line: #c9c7c0;      /* 飾りの線（意味を持たない。比の基準なし） */
+
+  /* フォーカス（会社共通） */
+  --focus: #1f4e8c;
+
+  /* 会社の色（浅葱）: リンク */
+  --accent: #0e7c7b;
+
+  /* 文字（OS のフォント。外部のフォントは読み込まない） */
+  --font: system-ui, -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+    "Noto Sans JP", "Noto Sans CJK JP", "Yu Gothic UI", "Yu Gothic", Meiryo, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1b1c1e;
+    --panel: #25262a;
+    --fg: #ececec;
+    --muted: #a8a8ae;
+    --line: #44464b;
+    --focus: #8db4ec;
+    --accent: #5cc8c2;
+  }
+}
+/* 印刷は白地に黒（ガイドライン 9.）。端末がダーク表示でも、ライトの値に戻す */
+@media print {
+  :root {
+    color-scheme: light;
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --fg: #1d1d1f;
+    --muted: #5a5a60;
+    --line: #c9c7c0;
+    --focus: #1f4e8c;
+    --accent: #0e7c7b;
+  }
+}
+
+/* 基礎の指定（ガイドライン 4.3 と同じ） */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);   /* 前景と背景は必ず両方指定する */
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere; /* 長い URL で幅 320px からはみ出さない */
+  line-break: strict;
+}
+a { color: var(--accent); text-underline-offset: 0.2em; }
+a:hover { text-decoration-thickness: 3px; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---- 組み方（1 列。本文の幅は 48rem まで） ---- */
+.wrap {
+  max-width: 48rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* 本文へ移動（フォーカスしたときだけ見える） */
+.skip {
+  position: absolute;
+  inset-inline-start: 0.75rem;
+  inset-block-start: -10rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg);
+  color: var(--fg);
+  border: 2px solid var(--fg);
+  font-weight: 700;
+  z-index: 1;
+}
+.skip:focus { inset-block-start: 0.75rem; }
+
+.site-header {
+  background: var(--panel);
+  color: var(--fg);
+  border-block-end: 1px solid var(--line);
+}
+.site-header .wrap { padding-block: 0.25rem; }
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--fg);
+  font-weight: 700;
+  text-decoration: none;
+}
+.brand:hover { text-decoration: underline; }
+
+main { padding-block: 1.5rem 3rem; }
+h1, h2, h3 { line-height: 1.4; }
+h1 { font-size: 1.6rem; margin: 0 0 1rem; }
+h2 {
+  font-size: 1.3rem;
+  margin: 3rem 0 1rem;
+  padding-block-end: 0.25rem;
+  border-block-end: 1px solid var(--line);
+}
+h3 { font-size: 1.12rem; margin: 0 0 0.5rem; }
+p, ul { margin: 0 0 1rem; }
+ul { padding-inline-start: 1.5rem; }
+li { margin-block-end: 0.25rem; }
+
+@media (max-width: 30em) {
+  .wrap { padding-inline: 0.75rem; }
+  h1 { font-size: 1.4rem; }
+}
+
+/* サービスの一覧（1 つずつ、面＋飾りの線の枠） */
+.services {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.services > li {
+  margin: 0 0 1rem;
+  padding: 1rem;
+  background: var(--panel);
+  color: var(--fg);
+  border: 1px solid var(--line);
+}
+.services > li > :last-child { margin-block-end: 0; }
+
+.site-footer {
+  padding-block: 1rem 1.5rem;
+  border-block-start: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.operator { margin: 0; }
+
+/* 強制カラー（Windows のハイコントラストなど）: 一覧の枠を、利用者の文字の色で見せる */
+@media (forced-colors: active) {
+  .services > li { border-color: CanvasText; }
+}
+
+@media print {
+  .skip { display: none; }
+  /* 外部のリンクの URL を書き添える（一覧のリンクは文に住所があるので添えない） */
+  [aria-labelledby="about"] a[href^="https://"]::after { content: "（" attr(href) "）"; }
+}
