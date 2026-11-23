@@ -1,6 +1,6 @@
 # status — OSAKI Dev の稼働状況のまとめのページ
 
-- **状態:** 2026-11-23 に手元で作った。GitHub のリポジトリの作成と公開はまだ（[5 章](#5-公開の手順)）。追跡は osakidev/nokorazu#164
+- **状態:** 2026-11-23 に作り、同じ日に公開のリポジトリ osakidev/status を作って GitHub Pages で公開した（https://osakidev.github.io/status/）。独自ドメイン status.osaki.dev は、osaki.dev の DNS を Route 53 に移した後に付ける（company#65）。追跡は osakidev/nokorazu#164
 - **決まっていること（代表、2026-11-23）:** 中身は「OSAKI Dev のサービスと、それぞれの稼働状況のページへのリンク」だけ。リポジトリの名前は `status`（会社のもの・共通のものは頭に何も付けない。company の `docs/company/12-naming.md`）。公開のリポジトリにし、GitHub Pages で出す。独自ドメインは将来 `status.osaki.dev`（`osaki.dev` の DNS を Route 53 に移すとき。5.2）
 - **従う決まり:** osakidev/company の `docs/design/guidelines.md` 版 1.1（文章は 3.、色は 4.、確かめ方は 13.）。強調色は会社の色の浅葱（4.1 と 14. の 1）。アクセシビリティの目標は JIS X 8341-3:2016 AA・WCAG 2.2 AA
 - **もとにしたもの:** osakidev/nokorazu-status（6c70dd6）の作りと決まりを小さく写した。違うところは [9 章](#9-nokorazu-status-から変えたこと写したもの)
